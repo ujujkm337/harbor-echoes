@@ -9,12 +9,15 @@ jobs:
         with: { node-version: '20' }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
       - run: npm install
       - run: npx cap sync
-      - run: |
+      - name: Build APK
+        run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: harbor-apk
