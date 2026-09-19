@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#0f1b2a"/>
+<title>ГАВАНЬ — три истории маяка</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"/>
+<style>/* inline fallback */</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">Г</div>
+      <div>
+        <h1>ГАВАНЬ</h1>
+        <p>три игры • один маяк • 3 часа</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="iconbtn" id="audioBtn" onclick="Audio.init();Audio.resume()" title="3D звук">🔇</button>
+      <button class="iconbtn" onclick="showView('hub')" title="Домой">⌂</button>
+    </div>
+  </header>
+
+  <!-- HUB -->
+  <section class="view active" id="view-hub">
+    <div class="hero">
+      <img src="assets/hub-bg.jpg" alt="Приморск"/>
+      <div class="hero-text">
+        <div class="badge">✦ ПРИМОРСК • ОСЕНЬ • ОТЛИВ</div>
+        <h2>Город, где<br>море забирает<br>дома медленно</h2>
+        <p>Три истории одного маяка. Найди карту в доме, открой чайную, переживи ночь. Спокойно. Меланхолично. Красиво.</p>
+      </div>
+    </div>
+    <div class="progress"><i id="totalProgress" style="width:14%"></i></div>
+    <div class="progress-label"><span>Прогресс антологии</span><span id="progressText">14% • Пролог пройден</span></div>
+
+    <div class="cards">
+      <!-- GAME 1 -->
+      <article class="card" onclick="openGame(1)">
+        <img class="thumb" src="assets/house-interior.jpg" alt="Дом на отливе"/>
+        <div class="play">Играть →</div>
+        <div class="card-body">
+          <h3><span class="num">1</span> Дом на отливе</h3>
+          <p>Point-and-click. Разбери дом бабушки на сваях, реши 5 тёплых загадок и найди карту к маяку. Без таймеров.</p>
+          <div class="meta">
+            <span class="tag">Point & Click</span><span class="tag moss">Уют • Грусть</span><span class="tag">~60 мин</span>
+          </div>
+          <div class="meter" style="margin-top:10px"><i id="p1" style="width:34%;background:var(--sea)"></i></div>
+          <div style="font-size:11px;opacity:.5;margin-top:4px" id="p1t">Прогресс 34% • Глава 2 из 5</div>
+        </div>
+      </article>
+      <!-- GAME 2 -->
+      <article class="card" onclick="openGame(2)">
+        <img class="thumb" src="assets/lighthouse-day.jpg" alt="Маяк"/>
+        <div class="play">Играть →</div>
+        <div class="card-body">
+          <h3><span class="num">2</span> Маяк</h3>
+          <p>Уютный симулятор чайной. 7 дней, 7 гостей. Смешай травы, выслушай, выбери слова. Концовка зависит от тебя.</p>
+          <div class="meta"><span class="tag moss">Cozy Sim</span><span class="tag">Дневник</span><span class="tag">~70 мин</span></div>
+          <div class="meter" style="margin-top:10px"><i id="p2" style="width:12%;background:var(--moss)"></i></div>
+          <div style="font-size:11px;opacity:.5;margin-top:4px" id="p2t">Прогресс 12% • День 1 из 7</div>
+        </div>
+      </article>
+      <!-- GAME 3 -->
+      <article class="card locked" id="card3" onclick="openGame(3)">
+        <img class="thumb" src="assets/lighthouse-night.jpg" alt="Ночная смена" style="filter:brightness(.9) contrast(1.05) saturate(.85)"/>
+        <div class="play" id="play3">🔒 Ночь закрыта</div>
+        <div class="card-body">
+          <h3><span class="num">3</span> Ночная смена <span style="font-size:10px;background:#1E2A3A;color:white;padding:3px 6px;border-radius:999px;letter-spacing:.5px">ХОРРОР</span></h3>
+          <p>Тот же маяк, но с 23:00. Гости без тени, рация шепчет, лампа гаснет. Держи свет. Не открывай люк.</p>
+          <div class="meta"><span class="tag rust">Псих. хоррор</span><span class="tag">Выборы</span><span class="tag">~50 мин</span></div>
+          <div class="meter" style="margin-top:10px"><i style="width:0%;background:var(--rust)"></i></div>
+          <div style="font-size:11px;opacity:.5;margin-top:4px">Откроется после Дня 3 в «Маяке» — или введи код 1987</div>
+        </div>
+      </article>
+    </div>
+
+    <div class="footer-note">
+      Акварельные фоны + HD pixel-персонажи • Сохранения на телефоне • Работает офлайн<br>
+      <button onclick="resetAll()" style="margin-top:8px;background:none;border:1px solid rgba(0,0,0,.12);padding:6px 10px;border-radius:999px;font-size:11px;cursor:pointer">Сбросить прогресс</button>
+      <div style="margin-top:10px;opacity:.35">Графика — половина игры. Сюжет — вторая половина. v0.9 • Build для APK готов.</div>
+    </div>
+  </section>
+
+  <!-- GAME 1 VIEW -->
+  <section class="view" id="view-game1">
+    <div class="game-head">
+      <img src="assets/house-interior.jpg" alt="Дом"/>
+      <button class="back" onclick="showView('hub')">← Гавань</button>
+      <div class="game-title"><h2>Дом на отливе</h2><p>Комната 2 из 5 • Найди 3 предмета, чтобы проявить фото</p></div>
+    </div>
+    <div class="game-body">
+      <div class="inventory" id="inv">
+        <div class="inv-item">🔑<span>ключ</span></div>
+        <div class="inv-item" style="opacity:.3">🖼️<span>фото</span></div>
+        <div class="inv-item" style="opacity:.3">📻<span>рация</span></div>
+        <div class="inv-item" style="opacity:.3">🗺️<span>карта</span></div>
+      </div>
+
+      <div class="dialogue" id="g1dialog">
+        <div class="speaker"><span>ЛИНА — мысли</span><span style="font-family:JetBrains Mono;font-size:10px">14:32 • ОТЛИВ</span></div>
+        <p id="g1text">Бабушкин дом пахнет солью и старой бумагой. На столе — недо-проявленное фото в кювете. На обратной стороне надпись: <i>«Свет зажигают не для себя»</i>. Чтобы проявить, нужен свет из трёх мест.</p>
+        <div class="choices" id="g1choices">
+          <button class="choice" onclick="g1action('window')">🪟 Осмотреть окно над морем — ставня заклинила (нажми на точку)</button>
+          <button class="choice" onclick="g1action('radio')">📻 Покрутить рацию — ловит только шипение... и чей-то голос?</button>
+          <button class="choice" onclick="g1action('diary')">📓 Открыть дневник бабушки — последняя запись: «Витя приходил, просил не гасить»</button>
+        </div>
+      </div>
+
+      <div class="hotspots">
+        <img src="assets/house-interior.jpg" alt="комната" id="roomImg"/>
+        <button class="hotspot" style="left:22%;top:44%" onclick="collect('lens')" title="Линза">🔍</button>
+        <button class="hotspot" style="left:68%;top:58%" onclick="collect('herb')" title="Травы">🌿</button>
+        <button class="hotspot" style="left:48%;top:28%" onclick="collect('lamp')" title="Лампа">💡</button>
+      </div>
+      <div class="journal" style="margin-top:12px">
+        <b>Дневник Лины</b><br>
+        <span id="journalText">Нашла ключ от кладовки. Фото проявится, если собрать свет: линза + лампа + травы для раствора. На рации — частота 87.9, кто-то повторяет моё имя.</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="choice" style="flex:1;text-align:center" onclick="showView('hub')">Сохранить и выйти</button>
+        <button class="choice" style="flex:1;text-align:center;background:var(--ink);color:white" onclick="finishG1()">Проявить фото →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME 2 VIEW -->
+  <section class="view" id="view-game2">
+    <div class="game-head">
+      <img src="assets/lighthouse-day.jpg" alt="Маяк днем"/>
+      <button class="back" onclick="showView('hub')">← Гавань</button>
+      <div class="game-title"><h2>Маяк — День 1</h2><p>Гость: дядя Витя, рыбак • Заказ: «что-нибудь от тумана в голове»</p></div>
+    </div>
+    <div class="game-body">
+      <div style="display:flex;gap:10px;align-items:center;background:white;border-radius:16px;padding:10px;border:1px solid rgba(0,0,0,.06)">
+        <img src="assets/hero-pixel.png" alt="Лина" class="pixel" style="width:48px;height:48px;object-fit:contain;background:#E8DCCA;border-radius:10px"/>
+        <div style="flex:1">
+          <div style="font-size:11px;letter-spacing:.6px;opacity:.5">ЛИНА • ХОЗЯЙКА ЧАЙНОЙ</div>
+          <div style="font-size:13px">Смешай чай. Слушай. Не перебивай.</div>
+        </div>
+        <div style="text-align:right"><div style="font-size:11px;opacity:.5">День</div><div style="font-weight:800">1/7</div></div>
+      </div>
+
+      <div class="dialogue" style="margin-top:12px" id="g2dialog">
+        <div class="speaker"><span>ДЯДЯ ВИТЯ • 63 • РЫБАК</span><span>☕ ждёт</span></div>
+        <p id="g2text">«Твоя бабушка... она свет держала, даже когда все уехали. Я ей говорю — зачем? А она: «А вдруг кто-то возвращается и не видит берега?». Ты тоже будешь держать?»</p>
+        <div class="choices" id="g2choices">
+          <button class="choice" onclick="g2choose('a')">— Буду. Пока хоть один человек помнит дорогу домой.</button>
+          <button class="choice" onclick="g2choose('b')">— Не знаю. Я просто хотела разобрать дом и уехать.</button>
+          <button class="choice" onclick="g2choose('c')">— А ты? Ты почему остался?</button>
+        </div>
+      </div>
+
+      <div class="tea-lab">
+        <button class="ingredient" onclick="mix('mint')"><b>🌿 Мята с утёса</b><span>освежает, от тумана</span></button>
+        <button class="ingredient" onclick="mix('sea')"><b>🌊 Солерос</b><span>солёный, горький</span></button>
+        <button class="ingredient" onclick="mix('pine')"><b>🌲 Хвоя</b><span>тёплый, смолистый</span></button>
+        <button class="ingredient" onclick="mix('honey')"><b>🍯 Мёд</b><span>сладкий, липкий</span></button>
+      </div>
+      <div class="cup">
+        <div style="font-size:12px;letter-spacing:.5px;opacity:.6">ЧАШКА</div>
+        <div id="cupContent" style="font-size:22px;margin:6px 0">— пусто —</div>
+        <div style="font-size:11px;opacity:.5" id="cupDesc">Смешай 2 травы, потом подай</div>
+        <button class="choice" style="margin-top:10px;background:var(--moss);color:white;text-align:center" onclick="serveTea()">Подать чай →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME 3 VIEW -->
+  <section class="view" id="view-game3">
+    <div class="game-head">
+      <img src="assets/lighthouse-night.jpg" alt="Ночь" style="filter:brightness(.75)"/>
+      <button class="back" onclick="showView('hub')" style="background:#1E2A3A;color:white">← Гавань</button>
+      <div class="game-title" style="background:linear-gradient(to top, #0f1b2a 8%, rgba(15,27,42,.85) 45%, transparent)"><h2 style="color:white">Ночная смена — 23:47</h2><p style="color:rgba(255,255,255,.7)">Инструкция: не пускай тех, у кого нет тени. Не выключай свет. Не открывай люк. 🔊 НАДЕНЬ НАУШНИКИ</p></div>
+      <div id="vignette" style="position:absolute;inset:0;pointer-events:none;opacity:0.18;box-shadow:inset 0 0 80px rgba(0,0,0,.55);transition:.6s"></div>
+    </div>
+    <div class="game-body" style="background:#0f1b2a;color:#E8DCCA">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="flex:1">
+          <div style="font-size:11px;opacity:.5;letter-spacing:.6px">МАСЛО В ЛАМПЕ</div>
+          <div class="horror-meter"><i id="oil" style="width:62%"></i></div>
+        </div>
+        <div style="text-align:right"><div style="font-size:11px;opacity:.5">ТРЕВОГА</div><div id="fearLabel" style="font-weight:800;color:#C77A5A">низкая</div></div>
+      </div>
+
+      <div class="dialogue" style="background:#1a2a3a;color:#E8DCCA;border-color:rgba(255,255,255,.08);margin-top:12px">
+        <div class="speaker" style="opacity:.5"><span>ГОСТЬ #1 • СТУК В ДВЕРЬ</span><span id="guestMeta">мокрый • без тени?</span></div>
+        <p id="g3text" style="color:#E8DCCA">*стук* — «Открой, дочка, я с моря... промок до нитки. Можно чаю и обсушиться? Лампа у тебя слишком яркая, приглуши...»<br><span style="opacity:.6;font-size:12px">Ты видишь: под ним лужа, но тени нет. На стене — правила.</span></p>
+        <div class="choices" id="g3choices">
+          <button class="choice" style="background:#0f1b2a;color:#E8DCCA;border-color:rgba(255,255,255,.12)" onclick="g3choose('let')">Впустить — налить чай, не трогать свет</button>
+          <button class="choice" style="background:#0f1b2a;color:#E8DCCA;border-color:rgba(255,255,255,.12)" onclick="g3choose('dim')">Приглушить свет, как просит</button>
+          <button class="choice" style="background:#2a1a1a;color:#ff9a9a;border-color:rgba(255,80,80,.2)" onclick="g3choose('deny')">Отказать — «Правило: без тени не пускаю»</button>
+        </div>
+      </div>
+
+      <div class="journal" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#E8DCCA;margin-top:12px">
+        <b style="color:#7FB3C8">ЖУРНАЛ СМОТРИТЕЛЯ</b><br>
+        <span id="g3journal">23:47 — масло 62%. Слышу шум снизу, будто кто-то скребётся в люк. Рация шипит на 87.9. Если гость без тени — это не гость.</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="choice" style="flex:1;text-align:center;background:#1a2a3a;color:#E8DCCA" onclick="oilTick(-8)">Подлить масла (−8% тревоги)</button>
+        <button class="choice" style="flex:1;text-align:center;background:#C77A5A;color:white" onclick="showView('hub')">Дожить до утра →</button>
+      </div>
+      <div style="font-size:11px;opacity:.4;text-align:center;margin-top:10px">Хоррор мягкий: без скримеров, через свет и звук. Надень наушники.</div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">Сохранено ✓</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

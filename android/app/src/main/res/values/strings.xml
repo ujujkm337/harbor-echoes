@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ГАВАНЬ</string>
+    <string name="title_activity_main">ГАВАНЬ</string>
+    <string name="package_name">ru.harbor.echoes</string>
+    <string name="custom_url_scheme">ru.harbor.echoes</string>
+</resources>

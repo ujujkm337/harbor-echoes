@@ -1,0 +1,9 @@
+{
+  "appId": "ru.harbor.echoes",
+  "appName": "ГАВАНЬ",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 0 }
+  }
+}

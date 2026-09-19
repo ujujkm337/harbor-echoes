@@ -1,0 +1,13 @@
+{
+  "name": "ГАВАНЬ — три истории маяка",
+  "short_name": "ГАВАНЬ",
+  "description": "Антология из 3 игр: Дом на отливе, Маяк, Ночная смена. 3 часа уютного сюжета.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf6e3",
+  "theme_color": "#0f1b2a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "assets/hub-bg.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any maskable" }
+  ]
+}

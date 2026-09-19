@@ -1,0 +1,18 @@
+{
+  "name": "harbor-echoes",
+  "version": "0.9.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/cli": "^6.1.0",
+    "@capacitor/android": "^6.1.0"
+  }
+}
