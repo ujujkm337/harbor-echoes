@@ -1,12 +1,12 @@
 {
-  "name": "ГАВАНЬ — три истории маяка",
-  "short_name": "ГАВАНЬ",
-  "description": "Антология из 3 игр: Дом на отливе, Маяк, Ночная смена. 3 часа уютного сюжета.",
+  "name": "ГАВАНЬ 2.5D — Hollow x Undertale",
+  "short_name": "ГАВАНЬ 2.5D",
+  "description": "2.5D side-view: Hollow Knight атмосфера + Undertale диалоги, ландшафт 16:9",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#fdf6e3",
+  "background_color": "#040a14",
   "theme_color": "#0f1b2a",
-  "orientation": "portrait",
+  "orientation": "landscape",
   "icons": [
     { "src": "assets/hub-bg.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any maskable" }
   ]

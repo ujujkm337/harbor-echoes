@@ -4,216 +4,535 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
 <meta name="theme-color" content="#0f1b2a"/>
-<title>ГАВАНЬ — три истории маяка</title>
-<link rel="manifest" href="manifest.json"/>
+<meta name="screen-orientation" content="landscape"/>
+<title>ГАВАНЬ 2.5D — Hollow x Undertale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"/>
-<style>/* inline fallback */</style>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#040a14;color:#E8DCCA;overflow:hidden;width:100%;height:100%;height:100dvh;font-family:'Manrope',system-ui,sans-serif}
+  /* force landscape hint */
+  @media (orientation:portrait){
+    body::before{content:"↻ Поверни телефон горизонтально";position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#040a14;color:white;font-family:'Press Start 2P',monospace;font-size:11px;text-align:center;padding:20px}
+    #gameWrap{opacity:0.08;filter:blur(6px)}
+  }
+  #gameWrap{position:relative;width:100%;height:100%;display:flex;flex-direction:column}
+  #bar{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:linear-gradient(to bottom, #0f1b2a, #0a131f);border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+  #bar .left{display:flex;gap:10px;align-items:center}
+  .logo{width:28px;height:28px;border-radius:8px;background:#E8DCCA;color:#0f1b2a;display:grid;place-items:center;font-weight:800;font-size:12px}
+  #bar h1{font-size:11px;letter-spacing:1px;margin:0;font-family:'Press Start 2P',monospace}
+  #bar p{font-size:10px;opacity:.5;margin:2px 0 0;font-family:'JetBrains Mono',monospace}
+  .pill{font-size:10px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer;font-family:'JetBrains Mono',monospace}
+  .pill.on{background:#E8DCCA;color:#0f1b2a;border-color:#E8DCCA}
+  #canvasWrap{flex:1;position:relative;overflow:hidden;background:#040a14}
+  canvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+  /* Undertale dialogue */
+  #dialog{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(760px,92%);background:#000;border:3px solid white;border-radius:4px;padding:14px 16px;display:none;z-index:20;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+  #dialog.on{display:block}
+  #dialog .head{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+  #dialog .face{width:48px;height:48px;border-radius:4px;background:#111;border:2px solid #333;overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-size:22px}
+  #dialog .name{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px}
+  #dialog .sub{font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.5}
+  #dialog .text{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.55;min-height:44px;white-space:pre-wrap}
+  #dialog .choices{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  #dialog .choices button{font-family:'Press Start 2P',monospace;font-size:9px;padding:8px 10px;background:white;color:black;border:none;cursor:pointer;box-shadow:4px 4px 0 #333}
+  #dialog .choices button.secondary{background:black;color:white;border:2px solid white;box-shadow:none}
+  #hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.68);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);padding:8px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;z-index:5;pointer-events:none}
+  /* controls */
+  #controls{position:absolute;inset:0;pointer-events:none;z-index:10}
+  .pad{position:absolute;bottom:14px;left:14px;display:flex;gap:10px;pointer-events:auto}
+  .btn{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px);display:grid;place-items:center;font-size:20px;user-select:none;touch-action:none;cursor:pointer}
+  .btn:active{background:rgba(255,255,255,.18)}
+  .rightPad{position:absolute;bottom:14px;right:14px;display:flex;gap:10px;pointer-events:auto}
+  .btnJump{width:68px;height:68px;border-radius:999px;background:#E8DCCA;color:#0f1b2a;font-weight:800;border:none}
+  .btnAct{width:56px;height:56px;border-radius:14px;background:rgba(199,122,90,.92);color:white;border:none}
+  # vignette
+  #vig{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 120px rgba(0,0,0,.55);opacity:.5;z-index:6}
+  #oilBar{position:absolute;top:54px;right:14px;width:140px;z-index:7;display:none}
+  #oilBar .label{font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.7;letter-spacing:.6px;display:flex;justify-content:space-between}
+  #oilBar i{display:block;height:6px;border-radius:999px;background:linear-gradient(90deg,#C77A5A,#7a0a0a);transition:.4s}
+</style>
 </head>
 <body>
-<div class="app" id="app">
-  <header class="topbar">
-    <div class="brand">
+<div id="gameWrap">
+  <div id="bar">
+    <div class="left">
       <div class="logo">Г</div>
       <div>
-        <h1>ГАВАНЬ</h1>
-        <p>три игры • один маяк • 3 часа</p>
+        <h1>ГАВАНЬ 2.5D</h1>
+        <p>Hollow Knight × Undertale • landscape • 16:9</p>
       </div>
     </div>
-    <div style="display:flex;gap:6px">
-      <button class="iconbtn" id="audioBtn" onclick="Audio.init();Audio.resume()" title="3D звук">🔇</button>
-      <button class="iconbtn" onclick="showView('hub')" title="Домой">⌂</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="pill" id="audioBtn" onclick="Audio.init()">🔇 звук</button>
+      <button class="pill" onclick="location.href='../index.html'">↩ портрет</button>
+      <button class="pill on" id="runBtn" onclick="Game.toggleRun()">🏃 бег</button>
     </div>
-  </header>
-
-  <!-- HUB -->
-  <section class="view active" id="view-hub">
-    <div class="hero">
-      <img src="assets/hub-bg.jpg" alt="Приморск"/>
-      <div class="hero-text">
-        <div class="badge">✦ ПРИМОРСК • ОСЕНЬ • ОТЛИВ</div>
-        <h2>Город, где<br>море забирает<br>дома медленно</h2>
-        <p>Три истории одного маяка. Найди карту в доме, открой чайную, переживи ночь. Спокойно. Меланхолично. Красиво.</p>
+  </div>
+  <div id="canvasWrap">
+    <canvas id="c" width="1280" height="720"></canvas>
+    <div id="vig"></div>
+    <div id="hint">← → идти • SPACE / ▲ прыжок • E / ● действие • Подойди к двери</div>
+    <div id="oilBar"><div class="label"><span>МАСЛО</span><span id="oilTxt">62%</span></div><div style="background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:6px;margin-top:4px"><i id="oilFill" style="width:62%"></i></div></div>
+    <div id="controls">
+      <div class="pad">
+        <div class="btn" id="left">◀</div>
+        <div class="btn" id="right">▶</div>
+      </div>
+      <div class="rightPad">
+        <div class="btn btnAct" id="act">●</div>
+        <div class="btn btnJump" id="jump">▲</div>
       </div>
     </div>
-    <div class="progress"><i id="totalProgress" style="width:14%"></i></div>
-    <div class="progress-label"><span>Прогресс антологии</span><span id="progressText">14% • Пролог пройден</span></div>
-
-    <div class="cards">
-      <!-- GAME 1 -->
-      <article class="card" onclick="openGame(1)">
-        <img class="thumb" src="assets/house-interior.jpg" alt="Дом на отливе"/>
-        <div class="play">Играть →</div>
-        <div class="card-body">
-          <h3><span class="num">1</span> Дом на отливе</h3>
-          <p>Point-and-click. Разбери дом бабушки на сваях, реши 5 тёплых загадок и найди карту к маяку. Без таймеров.</p>
-          <div class="meta">
-            <span class="tag">Point & Click</span><span class="tag moss">Уют • Грусть</span><span class="tag">~60 мин</span>
-          </div>
-          <div class="meter" style="margin-top:10px"><i id="p1" style="width:34%;background:var(--sea)"></i></div>
-          <div style="font-size:11px;opacity:.5;margin-top:4px" id="p1t">Прогресс 34% • Глава 2 из 5</div>
+    <div id="dialog">
+      <div class="head">
+        <div class="face" id="face">🌊</div>
+        <div>
+          <div class="name" id="dName">ДЯДЯ ВИТЯ</div>
+          <div class="sub" id="dSub">рыбак • 63 • любит тишину</div>
         </div>
-      </article>
-      <!-- GAME 2 -->
-      <article class="card" onclick="openGame(2)">
-        <img class="thumb" src="assets/lighthouse-day.jpg" alt="Маяк"/>
-        <div class="play">Играть →</div>
-        <div class="card-body">
-          <h3><span class="num">2</span> Маяк</h3>
-          <p>Уютный симулятор чайной. 7 дней, 7 гостей. Смешай травы, выслушай, выбери слова. Концовка зависит от тебя.</p>
-          <div class="meta"><span class="tag moss">Cozy Sim</span><span class="tag">Дневник</span><span class="tag">~70 мин</span></div>
-          <div class="meter" style="margin-top:10px"><i id="p2" style="width:12%;background:var(--moss)"></i></div>
-          <div style="font-size:11px;opacity:.5;margin-top:4px" id="p2t">Прогресс 12% • День 1 из 7</div>
-        </div>
-      </article>
-      <!-- GAME 3 -->
-      <article class="card locked" id="card3" onclick="openGame(3)">
-        <img class="thumb" src="assets/lighthouse-night.jpg" alt="Ночная смена" style="filter:brightness(.9) contrast(1.05) saturate(.85)"/>
-        <div class="play" id="play3">🔒 Ночь закрыта</div>
-        <div class="card-body">
-          <h3><span class="num">3</span> Ночная смена <span style="font-size:10px;background:#1E2A3A;color:white;padding:3px 6px;border-radius:999px;letter-spacing:.5px">ХОРРОР</span></h3>
-          <p>Тот же маяк, но с 23:00. Гости без тени, рация шепчет, лампа гаснет. Держи свет. Не открывай люк.</p>
-          <div class="meta"><span class="tag rust">Псих. хоррор</span><span class="tag">Выборы</span><span class="tag">~50 мин</span></div>
-          <div class="meter" style="margin-top:10px"><i style="width:0%;background:var(--rust)"></i></div>
-          <div style="font-size:11px;opacity:.5;margin-top:4px">Откроется после Дня 3 в «Маяке» — или введи код 1987</div>
-        </div>
-      </article>
+        <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.4">ENTER ↵</div>
+      </div>
+      <div class="text" id="dText"></div>
+      <div class="choices" id="dChoices"></div>
     </div>
-
-    <div class="footer-note">
-      Акварельные фоны + HD pixel-персонажи • Сохранения на телефоне • Работает офлайн<br>
-      <button onclick="resetAll()" style="margin-top:8px;background:none;border:1px solid rgba(0,0,0,.12);padding:6px 10px;border-radius:999px;font-size:11px;cursor:pointer">Сбросить прогресс</button>
-      <div style="margin-top:10px;opacity:.35">Графика — половина игры. Сюжет — вторая половина. v0.9 • Build для APK готов.</div>
-    </div>
-  </section>
-
-  <!-- GAME 1 VIEW -->
-  <section class="view" id="view-game1">
-    <div class="game-head">
-      <img src="assets/house-interior.jpg" alt="Дом"/>
-      <button class="back" onclick="showView('hub')">← Гавань</button>
-      <div class="game-title"><h2>Дом на отливе</h2><p>Комната 2 из 5 • Найди 3 предмета, чтобы проявить фото</p></div>
-    </div>
-    <div class="game-body">
-      <div class="inventory" id="inv">
-        <div class="inv-item">🔑<span>ключ</span></div>
-        <div class="inv-item" style="opacity:.3">🖼️<span>фото</span></div>
-        <div class="inv-item" style="opacity:.3">📻<span>рация</span></div>
-        <div class="inv-item" style="opacity:.3">🗺️<span>карта</span></div>
-      </div>
-
-      <div class="dialogue" id="g1dialog">
-        <div class="speaker"><span>ЛИНА — мысли</span><span style="font-family:JetBrains Mono;font-size:10px">14:32 • ОТЛИВ</span></div>
-        <p id="g1text">Бабушкин дом пахнет солью и старой бумагой. На столе — недо-проявленное фото в кювете. На обратной стороне надпись: <i>«Свет зажигают не для себя»</i>. Чтобы проявить, нужен свет из трёх мест.</p>
-        <div class="choices" id="g1choices">
-          <button class="choice" onclick="g1action('window')">🪟 Осмотреть окно над морем — ставня заклинила (нажми на точку)</button>
-          <button class="choice" onclick="g1action('radio')">📻 Покрутить рацию — ловит только шипение... и чей-то голос?</button>
-          <button class="choice" onclick="g1action('diary')">📓 Открыть дневник бабушки — последняя запись: «Витя приходил, просил не гасить»</button>
-        </div>
-      </div>
-
-      <div class="hotspots">
-        <img src="assets/house-interior.jpg" alt="комната" id="roomImg"/>
-        <button class="hotspot" style="left:22%;top:44%" onclick="collect('lens')" title="Линза">🔍</button>
-        <button class="hotspot" style="left:68%;top:58%" onclick="collect('herb')" title="Травы">🌿</button>
-        <button class="hotspot" style="left:48%;top:28%" onclick="collect('lamp')" title="Лампа">💡</button>
-      </div>
-      <div class="journal" style="margin-top:12px">
-        <b>Дневник Лины</b><br>
-        <span id="journalText">Нашла ключ от кладовки. Фото проявится, если собрать свет: линза + лампа + травы для раствора. На рации — частота 87.9, кто-то повторяет моё имя.</span>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="choice" style="flex:1;text-align:center" onclick="showView('hub')">Сохранить и выйти</button>
-        <button class="choice" style="flex:1;text-align:center;background:var(--ink);color:white" onclick="finishG1()">Проявить фото →</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- GAME 2 VIEW -->
-  <section class="view" id="view-game2">
-    <div class="game-head">
-      <img src="assets/lighthouse-day.jpg" alt="Маяк днем"/>
-      <button class="back" onclick="showView('hub')">← Гавань</button>
-      <div class="game-title"><h2>Маяк — День 1</h2><p>Гость: дядя Витя, рыбак • Заказ: «что-нибудь от тумана в голове»</p></div>
-    </div>
-    <div class="game-body">
-      <div style="display:flex;gap:10px;align-items:center;background:white;border-radius:16px;padding:10px;border:1px solid rgba(0,0,0,.06)">
-        <img src="assets/hero-pixel.png" alt="Лина" class="pixel" style="width:48px;height:48px;object-fit:contain;background:#E8DCCA;border-radius:10px"/>
-        <div style="flex:1">
-          <div style="font-size:11px;letter-spacing:.6px;opacity:.5">ЛИНА • ХОЗЯЙКА ЧАЙНОЙ</div>
-          <div style="font-size:13px">Смешай чай. Слушай. Не перебивай.</div>
-        </div>
-        <div style="text-align:right"><div style="font-size:11px;opacity:.5">День</div><div style="font-weight:800">1/7</div></div>
-      </div>
-
-      <div class="dialogue" style="margin-top:12px" id="g2dialog">
-        <div class="speaker"><span>ДЯДЯ ВИТЯ • 63 • РЫБАК</span><span>☕ ждёт</span></div>
-        <p id="g2text">«Твоя бабушка... она свет держала, даже когда все уехали. Я ей говорю — зачем? А она: «А вдруг кто-то возвращается и не видит берега?». Ты тоже будешь держать?»</p>
-        <div class="choices" id="g2choices">
-          <button class="choice" onclick="g2choose('a')">— Буду. Пока хоть один человек помнит дорогу домой.</button>
-          <button class="choice" onclick="g2choose('b')">— Не знаю. Я просто хотела разобрать дом и уехать.</button>
-          <button class="choice" onclick="g2choose('c')">— А ты? Ты почему остался?</button>
-        </div>
-      </div>
-
-      <div class="tea-lab">
-        <button class="ingredient" onclick="mix('mint')"><b>🌿 Мята с утёса</b><span>освежает, от тумана</span></button>
-        <button class="ingredient" onclick="mix('sea')"><b>🌊 Солерос</b><span>солёный, горький</span></button>
-        <button class="ingredient" onclick="mix('pine')"><b>🌲 Хвоя</b><span>тёплый, смолистый</span></button>
-        <button class="ingredient" onclick="mix('honey')"><b>🍯 Мёд</b><span>сладкий, липкий</span></button>
-      </div>
-      <div class="cup">
-        <div style="font-size:12px;letter-spacing:.5px;opacity:.6">ЧАШКА</div>
-        <div id="cupContent" style="font-size:22px;margin:6px 0">— пусто —</div>
-        <div style="font-size:11px;opacity:.5" id="cupDesc">Смешай 2 травы, потом подай</div>
-        <button class="choice" style="margin-top:10px;background:var(--moss);color:white;text-align:center" onclick="serveTea()">Подать чай →</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- GAME 3 VIEW -->
-  <section class="view" id="view-game3">
-    <div class="game-head">
-      <img src="assets/lighthouse-night.jpg" alt="Ночь" style="filter:brightness(.75)"/>
-      <button class="back" onclick="showView('hub')" style="background:#1E2A3A;color:white">← Гавань</button>
-      <div class="game-title" style="background:linear-gradient(to top, #0f1b2a 8%, rgba(15,27,42,.85) 45%, transparent)"><h2 style="color:white">Ночная смена — 23:47</h2><p style="color:rgba(255,255,255,.7)">Инструкция: не пускай тех, у кого нет тени. Не выключай свет. Не открывай люк. 🔊 НАДЕНЬ НАУШНИКИ</p></div>
-      <div id="vignette" style="position:absolute;inset:0;pointer-events:none;opacity:0.18;box-shadow:inset 0 0 80px rgba(0,0,0,.55);transition:.6s"></div>
-    </div>
-    <div class="game-body" style="background:#0f1b2a;color:#E8DCCA">
-      <div style="display:flex;gap:10px;align-items:center">
-        <div style="flex:1">
-          <div style="font-size:11px;opacity:.5;letter-spacing:.6px">МАСЛО В ЛАМПЕ</div>
-          <div class="horror-meter"><i id="oil" style="width:62%"></i></div>
-        </div>
-        <div style="text-align:right"><div style="font-size:11px;opacity:.5">ТРЕВОГА</div><div id="fearLabel" style="font-weight:800;color:#C77A5A">низкая</div></div>
-      </div>
-
-      <div class="dialogue" style="background:#1a2a3a;color:#E8DCCA;border-color:rgba(255,255,255,.08);margin-top:12px">
-        <div class="speaker" style="opacity:.5"><span>ГОСТЬ #1 • СТУК В ДВЕРЬ</span><span id="guestMeta">мокрый • без тени?</span></div>
-        <p id="g3text" style="color:#E8DCCA">*стук* — «Открой, дочка, я с моря... промок до нитки. Можно чаю и обсушиться? Лампа у тебя слишком яркая, приглуши...»<br><span style="opacity:.6;font-size:12px">Ты видишь: под ним лужа, но тени нет. На стене — правила.</span></p>
-        <div class="choices" id="g3choices">
-          <button class="choice" style="background:#0f1b2a;color:#E8DCCA;border-color:rgba(255,255,255,.12)" onclick="g3choose('let')">Впустить — налить чай, не трогать свет</button>
-          <button class="choice" style="background:#0f1b2a;color:#E8DCCA;border-color:rgba(255,255,255,.12)" onclick="g3choose('dim')">Приглушить свет, как просит</button>
-          <button class="choice" style="background:#2a1a1a;color:#ff9a9a;border-color:rgba(255,80,80,.2)" onclick="g3choose('deny')">Отказать — «Правило: без тени не пускаю»</button>
-        </div>
-      </div>
-
-      <div class="journal" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#E8DCCA;margin-top:12px">
-        <b style="color:#7FB3C8">ЖУРНАЛ СМОТРИТЕЛЯ</b><br>
-        <span id="g3journal">23:47 — масло 62%. Слышу шум снизу, будто кто-то скребётся в люк. Рация шипит на 87.9. Если гость без тени — это не гость.</span>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="choice" style="flex:1;text-align:center;background:#1a2a3a;color:#E8DCCA" onclick="oilTick(-8)">Подлить масла (−8% тревоги)</button>
-        <button class="choice" style="flex:1;text-align:center;background:#C77A5A;color:white" onclick="showView('hub')">Дожить до утра →</button>
-      </div>
-      <div style="font-size:11px;opacity:.4;text-align:center;margin-top:10px">Хоррор мягкий: без скримеров, через свет и звук. Надень наушники.</div>
-    </div>
-  </section>
-
-  <div class="toast" id="toast">Сохранено ✓</div>
+  </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+// ===== LANDSCAPE 2.5D ENGINE — Hollow x Undertale =====
+const C = document.getElementById('c');
+const X = C.getContext('2d');
+let W=1280,H=720;
+function resize(){
+  const r = document.getElementById('canvasWrap').getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  W = Math.round(r.width*dpr); H = Math.round(r.height*dpr);
+  C.width=W; C.height=H;
+  X.imageSmoothingEnabled=false;
+}
+resize(); addEventListener('resize', resize);
+
+// assets
+const IMG = {};
+function load(src, key){ const i=new Image(); i.src=src; IMG[key]=i; return i; }
+load('assets/side-bg-hollow.png','bg');
+load('assets/hub-bg.jpg','hub');
+load('assets/lighthouse-day.jpg','day');
+load('assets/lighthouse-night.jpg','night');
+load('assets/hero-pixel.png','hero');
+
+// Audio reused from before (spatial)
+const Audio = {
+  ctx:null, master:null, init(){
+    if(this.ctx) { if(this.ctx.state==='suspended') this.ctx.resume(); document.getElementById('audioBtn').textContent='🔊 звук'; document.getElementById('audioBtn').classList.add('on'); return; }
+    this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+    this.master=this.ctx.createGain(); this.master.gain.value=0.7; this.master.connect(this.ctx.destination);
+    document.getElementById('audioBtn').textContent='🔊 звук'; document.getElementById('audioBtn').classList.add('on');
+  },
+  tone(f=440, t=0.2, pan=0, vol=0.25, type='sine'){
+    if(!this.ctx) return;
+    const o=this.ctx.createOscillator(); o.type=type; o.frequency.value=f;
+    const g=this.ctx.createGain(); g.gain.setValueAtTime(vol,this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,this.ctx.currentTime+t);
+    const p=this.ctx.createStereoPanner(); p.pan.value=pan;
+    o.connect(g).connect(p).connect(this.master); o.start(); o.stop(this.ctx.currentTime+t);
+  },
+  knock(pan){ this.tone(85,0.22,pan,0.6); setTimeout(()=>this.tone(82,0.18,pan,0.45),120); },
+  collect(){ this.tone(520,0.15,0,0.18); setTimeout(()=>this.tone(780,0.18,0,0.15),90); },
+  jump(){ this.tone(620,0.12,-0.1,0.18,'square'); },
+  land(){ this.tone(120,0.14,0.1,0.2,'triangle'); },
+};
+
+// Input
+const Keys={left:false,right:false,up:false,act:false,run:false};
+addEventListener('keydown',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA') Keys.left=true;
+  if(e.code==='ArrowRight'||e.code==='KeyD') Keys.right=true;
+  if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW') Keys.up=true;
+  if(e.code==='KeyE'||e.code==='Enter') Keys.act=true;
+  if(e.code==='ShiftLeft') Keys.run=true;
+});
+addEventListener('keyup',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA') Keys.left=false;
+  if(e.code==='ArrowRight'||e.code==='KeyD') Keys.right=false;
+  if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW') Keys.up=false;
+  if(e.code==='KeyE'||e.code==='Enter') Keys.act=false;
+  if(e.code==='ShiftLeft') Keys.run=false;
+});
+function bindBtn(id,key){
+  const b=document.getElementById(id);
+  b.addEventListener('touchstart',e=>{e.preventDefault();Keys[key]=true; Audio.init();},{passive:false});
+  b.addEventListener('touchend',e=>{e.preventDefault();Keys[key]=false;},{passive:false});
+  b.addEventListener('mousedown',()=>Keys[key]=true);
+  b.addEventListener('mouseup',()=>Keys[key]=false);
+  b.addEventListener('mouseleave',()=>Keys[key]=false);
+}
+bindBtn('left','left'); bindBtn('right','right'); bindBtn('jump','up'); bindBtn('act','act');
+document.getElementById('left').addEventListener('touchstart',()=>Audio.init(),{once:true});
+
+// World
+const World = {
+  width: 3600, // long street
+  groundY: 0, // computed
+  doors:[
+    {x: 420, w:120, h:170, label:'ДОМ НА ОТЛИВЕ', color:'#7fb3c8', id:'house', img:'hub'},
+    {x: 1480, w:140, h:190, label:'МАЯК • ДЕНЬ', color:'#6A8B6F', id:'day', img:'day'},
+    {x: 2680, w:140, h:190, label:'МАЯК • НОЧЬ', color:'#C77A5A', id:'night', img:'night', horror:true},
+  ],
+  npcs:[
+    {x: 900, name:'ДЯДЯ ВИТЯ', face:'🎣', sub:'рыбак • 63', text:'Твоя бабушка свет держала, даже когда все уехали. А ты — будешь?', choices:['Буду, пока кто-то помнит дорогу','Не знаю, хотела уехать','А ты почему остался?']},
+    {x: 1900, name:'МИРА', face:'📚', sub:'14 • прячется от дома', text:'Ты тоже слышишь рацию? На 87.9 кто-то зовёт по имени...', choices:['Слышу. Это бабушка?','Не слушай, это туман','Пойдём вместе проверим маяк']},
+    {x: 3200, name:'СМОТРИТЕЛЬ', face:'🌫️', sub:'??? • без тени', text:'...не выключай свет... он идёт снизу...', choices:['Кто ты?','Не пущу без тени','АРГХ — беги!']},
+  ]
+};
+
+// Player — Hollow knight fluid + Undertale small
+const Player = {
+  x: 120, y: 300, vx:0, vy:0, w:34, h:48, dir:1, onGround:false, run:false, speed: 3.2, jump: 11, gravity:0.72, friction:0.82,
+  update(){
+    const wantLeft = Keys.left, wantRight = Keys.right;
+    const run = Keys.run || Game.runMode;
+    const spd = run ? 5.1 : 3.2;
+    if(wantLeft && !wantRight){ this.vx = Math.max(this.vx - 0.9, -spd); this.dir=-1; }
+    else if(wantRight && !wantLeft){ this.vx = Math.min(this.vx + 0.9, spd); this.dir=1; }
+    else { this.vx *= this.friction; if(Math.abs(this.vx)<0.1) this.vx=0; }
+    // gravity
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    // ground
+    const gy = World.groundY - this.h;
+    if(this.y >= gy){ if(this.vy>2) Audio.land(); this.y = gy; this.vy=0; this.onGround=true; } else this.onGround=false;
+    // walls
+    this.x = Math.max(20, Math.min(World.width - this.w -20, this.x));
+    // jump
+    if(Keys.up && this.onGround){ this.vy = -this.jump; this.onGround=false; Audio.jump(); Keys.up=false; }
+    // camera follow
+    Camera.x = this.x + this.w/2 - W/2/ Camera.scale;
+    Camera.x = Math.max(0, Math.min(World.width - W/Camera.scale, Camera.x));
+  }
+};
+
+const Camera = { x:0, y:0, scale: 1.35 }; // 2.5D scale
+
+// Dialogue — Undertale style
+const Dialog = {
+  active:false, queue:[], idx:0, onEnd:null,
+  show(npc){
+    this.active=true; Game.paused=true;
+    document.getElementById('dialog').classList.add('on');
+    document.getElementById('dName').textContent=npc.name;
+    document.getElementById('dSub').textContent=npc.sub;
+    document.getElementById('face').textContent=npc.face;
+    this.typeText(npc.text);
+    const ch=document.getElementById('dChoices'); ch.innerHTML='';
+    (npc.choices||[]).forEach((t,i)=>{
+      const b=document.createElement('button'); b.textContent=t; b.className=i===0?'':'secondary';
+      b.onclick=()=>{
+        Audio.collect();
+        if(npc.name==='СМОТРИТЕЛЬ' && i===2){ Dialog.hide(); Game.triggerHorrorChase(); return; }
+        if(npc.name==='ДЯДЯ ВИТЯ'){ Game.progress.house=Math.min(100,Game.progress.house+12); }
+        if(npc.name==='МИРА'){ Game.progress.day=Math.min(100,Game.progress.day+12); if(Game.progress.day>30) document.getElementById('hint').textContent='Ночь открылась → иди в маяк ночью (красная дверь)'; }
+        // random answer
+        const replies={
+          'Буду, пока кто-то помнит дорогу':'Витя кивает: «Тогда держи чайник горячим».',
+          'Не знаю, хотела уехать':'«Все так говорят. А потом остаются».',
+          'А ты почему остался?':'«Ловлю тишину. Она тоже клюёт на чай».',
+          'Слышу. Это бабушка?':'Мира шепчет: «На 87.9 — её голос. Не гаси свет».',
+          'Не слушай, это туман':'«Туман не знает твоего имени...»',
+          'Пойдём вместе проверим маяк':'Мира берёт тебя за рукав. Свет мигает.',
+          'Кто ты?':'«...я был смотрителем... пока не открыл люк...»',
+          'Не пущу без тени':'Тень не появляется. Он растворяется, оставляя венок.',
+        };
+        this.typeText(replies[t]||'...тишина. Только ветер.', true);
+        ch.innerHTML=`<button onclick="Dialog.hide()">Продолжить →</button>`;
+      };
+      ch.appendChild(b);
+    });
+    if(!npc.choices?.length) ch.innerHTML=`<button onclick="Dialog.hide()">OK</button>`;
+  },
+  typeText(t, append=false){
+    const el=document.getElementById('dText');
+    if(!append) el.textContent='';
+    let i=0; clearInterval(this._int);
+    const base = append ? el.textContent + '\n\n' : '';
+    el.textContent=base;
+    this._int=setInterval(()=>{
+      el.textContent=base + t.slice(0,i++);
+      if(i>t.length) clearInterval(this._int);
+    }, 14);
+    Audio.tone(420,0.06,(Math.random()-0.5)*0.3,0.06);
+  },
+  hide(){
+    this.active=false; Game.paused=false;
+    document.getElementById('dialog').classList.remove('on');
+  }
+};
+
+// Game state
+const Game = {
+  paused:false, runMode:true, horror:false, oil:62, fear:24,
+  progress: JSON.parse(localStorage.getItem('harbor2')||'{"house":34,"day":12,"night":0}'),
+  save(){ localStorage.setItem('harbor2', JSON.stringify(this.progress)); },
+  toggleRun(){ this.runMode=!this.runMode; document.getElementById('runBtn').classList.toggle('on', this.runMode); },
+  triggerHorrorChase(){
+    this.horror=true; this.fear=78; document.getElementById('oilBar').style.display='block';
+    // bullet-hell undertale moment
+    Bullets.active=true; Bullets.spawnTimer=0;
+    Audio.tone(180,0.5,0,0.4,'sawtooth');
+    // vignette
+    document.getElementById('vig').style.boxShadow='inset 0 0 180px rgba(120,0,0,.7)';
+    Dialog.show({name:'ТВАРЬ ИЗ ЛЮКА', face:'👁️', sub:'уровень страха 78%', text:'ТЫ ОТКРЫЛА. ТЕПЕРЬ БЕГИ ИЛИ УВОРАЧИВАЙСЯ!', choices:[]});
+    setTimeout(()=>Dialog.hide(),1800);
+  },
+  interact(){
+    // doors
+    const px = Player.x + Player.w/2;
+    for(const d of World.doors){
+      if(Math.abs(px - (d.x+d.w/2)) < 90){
+        if(d.id==='night' && !this.horror && this.progress.day<30){
+          Dialog.show({name:'ДВЕРЬ ЗАПЕРТА', face:'🔒', sub:'ночь', text:'Ночь откроется после разговора с Мирой. Поболтай с ней у маяка.', choices:[]});
+          return;
+        }
+        // enter
+        if(d.horror){ this.horror=true; document.getElementById('oilBar').style.display='block'; this.fear=42; document.getElementById('vig').style.boxShadow='inset 0 0 140px rgba(0,0,0,.75)'; Dialog.show({name:d.label, face:'🌙', sub:'внутри холодно', text:'Лампа мигает. Снизу скрежет. Масло тает. Держи свет и не открывай люк.', choices:['Подлить масла','Осмотреться','Выйти']}); }
+        else { Dialog.show({name:d.label, face: d.id==='house'?'🏚️':'☕', sub:'уютно', text: d.id==='house' ? 'Внутри пахнет старой бумагой. На столе — недо-проявленное фото. Нужны линза, травы, лампа (ищи в мире).' : 'Чайная маяка. Днём здесь тепло. Смешай травы (нажми в диалоге).', choices:['Искать','Поговорить','Выйти']}); }
+        return;
+      }
+    }
+    // npcs
+    for(const n of World.npcs){
+      if(Math.abs(px - n.x) < 70){ Dialog.show(n); return; }
+    }
+  }
+};
+
+// Bullets — Undertale bullet hell for horror
+const Bullets = {
+  active:false, arr:[], spawnTimer:0,
+  update(){
+    if(!this.active) return;
+    this.spawnTimer--;
+    if(this.spawnTimer<=0){
+      this.spawnTimer=18;
+      // spawn from top random x near player
+      this.arr.push({x: Player.x + (Math.random()-0.5)*500, y: -30, vy: 3+Math.random()*3, r:6+Math.random()*7});
+      Audio.tone(220,0.08,(Math.random()-0.5)*0.8,0.12,'square');
+    }
+    for(const b of this.arr){ b.y+=b.vy; }
+    this.arr = this.arr.filter(b=>b.y < World.groundY+40);
+    // collision
+    for(const b of this.arr){
+      if(Math.abs(b.x - (Player.x+Player.w/2))<22 && Math.abs(b.y - (Player.y+Player.h/2))<26){
+        Game.fear = Math.min(100, Game.fear+6); Game.oil=Math.max(0,Game.oil-1.2);
+        updateOil();
+        b.y=9999;
+        X.fillStyle='#ff3b30'; // flash
+        document.getElementById('gameWrap').style.filter='brightness(1.2)'; setTimeout(()=>document.getElementById('gameWrap').style.filter='',90);
+        Audio.tone(140,0.2,0,0.3,'sawtooth');
+      }
+    }
+    Game.oil = Math.max(0, Game.oil - 0.04); updateOil();
+    if(Game.oil<=0){ this.active=false; Dialog.show({name:'ЛАМПА ПОГАСЛА', face:'💀', sub:'тьма', text:'Масло кончилось. Тварь из люка вышла. Ты проиграла — но можешь попробовать снова. Нажми «Подлить масла» у двери.', choices:[]}); }
+  },
+  draw(camX){
+    if(!this.active) return;
+    for(const b of this.arr){
+      const sx = (b.x - camX)*Camera.scale;
+      const sy = (b.y - 0)*Camera.scale;
+      X.fillStyle = '#ff4a4a';
+      X.beginPath(); X.arc(sx, sy, b.r*Camera.scale, 0, Math.PI*2); X.fill();
+      X.fillStyle='white'; X.beginPath(); X.arc(sx-2, sy-2, 2,0,Math.PI*2); X.fill();
+    }
+  }
+};
+function updateOil(){
+  document.getElementById('oilFill').style.width=Game.oil+'%';
+  document.getElementById('oilTxt').textContent=Math.round(Game.oil)+'%';
+  document.getElementById('oilFill').style.background = Game.oil<20?'#8a0a0a': Game.oil<45?'#C77A5A':'linear-gradient(90deg,#C77A5A,#7a0a0a)';
+}
+
+// Parallax
+let t=0;
+function render(){
+  t+=0.016;
+  // sky gradient
+  const grad = X.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, Game.horror ? '#0a0f1e' : '#87b9d1');
+  grad.addColorStop(0.5, Game.horror ? '#1a2338' : '#e8d5a8');
+  grad.addColorStop(1, Game.horror ? '#070a12' : '#c9a86a');
+  X.fillStyle=grad; X.fillRect(0,0,W,H);
+  // distant lighthouse (parallax 0.1)
+  const cam = Camera.x;
+  // mountains layer 0.2
+  X.save(); X.scale(Camera.scale,Camera.scale);
+  // ground line
+  World.groundY = H/Camera.scale - 86;
+  // parallax bg image - subtle
+  if(IMG.bg && IMG.bg.complete){
+    const pw = W/Camera.scale *1.2;
+    X.globalAlpha = Game.horror?0.28:0.38;
+    X.drawImage(IMG.bg, -cam*0.08 - 200, 30, pw+400, 420);
+    X.globalAlpha=1;
+  }
+  // distant town silhouette 0.35
+  X.fillStyle = Game.horror ? '#0d1528' : '#2b3a4a';
+  for(let i=0;i<6;i++){
+    const x = (i*560 - cam*0.35) % (World.width+600) - 200;
+    X.fillRect(x, World.groundY - 120 - Math.sin(i)*20, 140, 120);
+    // windows
+    X.fillStyle= Game.horror ? 'rgba(200,40,40,.25)' : 'rgba(255,220,120,.22)';
+    X.fillRect(x+18, World.groundY - 95, 18,18); X.fillRect(x+56, World.groundY -95,18,18);
+    X.fillStyle = Game.horror ? '#0d1528' : '#2b3a4a';
+  }
+  // mid layer: street platforms 0.6
+  X.fillStyle = '#1a2330';
+  // ground
+  X.fillStyle = Game.horror ? '#0f141e' : '#2f3d2f';
+  X.fillRect(-cam, World.groundY, World.width+ W, 86);
+  // grass top
+  X.fillStyle = Game.horror ? '#1a2a1a' : '#6a8b6f';
+  X.fillRect(-cam, World.groundY, World.width+W, 10);
+  // foreground fog particles
+  X.fillStyle='rgba(255,255,255,.06)';
+  for(let i=0;i<7;i++){
+    const fx = (i*520 + t*12 - cam*0.9) % (World.width+400) - 100;
+    const fy = World.groundY - 30 - (i%3)*18;
+    X.fillRect(fx, fy, 80, 6);
+  }
+  // doors
+  for(const d of World.doors){
+    const sx = d.x - cam;
+    // building
+    X.fillStyle = Game.horror && d.horror ? '#1a0f0f' : '#fdf6e3';
+    X.fillRect(sx, World.groundY - d.h, d.w, d.h);
+    X.strokeStyle='rgba(0,0,0,.18)'; X.lineWidth=2; X.strokeRect(sx, World.groundY - d.h, d.w, d.h);
+    // roof
+    X.fillStyle = d.horror ? '#8a0a0a' : '#C77A5A';
+    X.beginPath(); X.moveTo(sx-8, World.groundY - d.h); X.lineTo(sx+d.w/2, World.groundY - d.h - 22); X.lineTo(sx+d.w+8, World.groundY - d.h); X.fill();
+    // door
+    X.fillStyle='#0f1b2a'; X.fillRect(sx+ d.w/2 -18, World.groundY - 46, 36,46);
+    X.fillStyle= d.horror ? 'rgba(255,60,60,.55)' : 'rgba(255,220,120,.9)';
+    X.fillRect(sx+ d.w/2 -12, World.groundY - 32, 24,12);
+    // label
+    X.fillStyle='rgba(0,0,0,.72)'; X.fillRect(sx, World.groundY - d.h - 22, d.w, 16);
+    X.fillStyle='white'; X.font='600 8px JetBrains Mono'; X.textAlign='center'; X.fillText(d.label, sx+d.w/2, World.groundY - d.h -11);
+    // interact radius
+    const dist = Math.abs(Player.x + Player.w/2 - (d.x+d.w/2));
+    if(dist<90){
+      X.fillStyle='rgba(255,255,255,.9)'; X.font='800 10px JetBrains Mono'; X.fillText('● E', sx+d.w/2, World.groundY - d.h - 34);
+      // glow
+      X.fillStyle='rgba(255,255,255,.18)'; X.fillRect(sx-6, World.groundY - d.h -6, d.w+12, d.h+12);
+    }
+  }
+  // NPCs
+  for(const n of World.npcs){
+    const sx = n.x - cam;
+    const sy = World.groundY - 62;
+    // shadow
+    X.fillStyle='rgba(0,0,0,.25)'; X.beginPath(); X.ellipse(sx, World.groundY+2, 18,6,0,0,Math.PI*2); X.fill();
+    // body — pixel style
+    X.fillStyle = n.name==='СМОТРИТЕЛЬ' ? '#8a0a0a' : '#E8DCCA';
+    X.fillRect(sx-10, sy, 20, 32);
+    // head
+    X.fillStyle='#ffdbac'; X.fillRect(sx-8, sy-14, 16,14);
+    // face icon
+    X.font='12px serif'; X.textAlign='center'; X.fillText(n.face, sx, sy-3);
+    // name
+    X.fillStyle='white'; X.font='600 7px Press Start 2P'; X.fillText(n.name, sx, sy+48);
+    const d2 = Math.abs(Player.x+Player.w/2 - n.x);
+    if(d2<70){
+      X.fillStyle='white'; X.font='700 9px JetBrains Mono'; X.fillText('E говорить', sx, sy-26);
+    }
+  }
+  // player
+  // shadow
+  X.fillStyle='rgba(0,0,0,.28)'; X.beginPath(); X.ellipse(Player.x - cam + Player.w/2, World.groundY+3, 14,5,0,0,Math.PI*2); X.fill();
+  // body
+  const px = Player.x - cam;
+  const py = Player.y;
+  // raincoat yellow — Hollow knight cape physics?
+  X.fillStyle='#f7c948';
+  X.fillRect(px+6, py+10, Player.w-12, Player.h-18);
+  // head
+  X.fillStyle='#ffdbac'; X.fillRect(px+8, py+2, Player.w-16, 14);
+  // hair
+  X.fillStyle='#1a1a1a'; X.fillRect(px+8, py+2, Player.w-16, 6);
+  // eyes — undertale style
+  X.fillStyle='black'; X.fillRect(px+12, py+8, 4,4); X.fillRect(px+18, py+8, 4,4);
+  X.fillStyle='white'; X.fillRect(px+13, py+9,1,1); X.fillRect(px+19, py+9,1,1);
+  // legs move
+  const walk = Math.sin(t* (Player.vx!==0? (Game.runMode?14:9):0))*6;
+  X.fillStyle='#1e2a3a'; X.fillRect(px+9, py+ Player.h-10 + Math.abs(walk)*0.2, 7,10); X.fillRect(px+18, py+ Player.h-10 - Math.abs(walk)*0.2, 7,10);
+  // dash trail if running
+  if(Math.abs(Player.vx)>4){
+    X.fillStyle='rgba(247,201,72,.18)'; X.fillRect(px - Player.dir*8, py+12, 8, 18);
+  }
+
+  // bullets on top
+  Bullets.draw(cam);
+
+  X.restore();
+
+  // vignette intensity with fear
+  const vig=document.getElementById('vig');
+  if(Game.horror) vig.style.opacity = 0.3 + Game.fear/220;
+}
+
+function loop(){
+  if(!Game.paused){
+    Player.update();
+    Bullets.update();
+    // auto interact check for hint
+    const px = Player.x + Player.w/2;
+    let near=null;
+    for(const d of World.doors) if(Math.abs(px-(d.x+d.w/2))<90) near=d.label;
+    for(const n of World.npcs) if(Math.abs(px-n.x)<70) near=n.name;
+    document.getElementById('hint').textContent = near ? `Нажми E / ●  → ${near}` : '← → идти • SPACE прыжок • E действие';
+    // oil drain in horror
+    if(Game.horror){ Game.oil-=0.018; if(Game.oil<0)Game.oil=0; updateOil(); }
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+loop();
+
+// interact
+function doInteract(){ if(Dialog.active) return; Game.interact(); }
+addEventListener('keydown',e=>{ if(e.code==='KeyE'||e.code==='Enter') doInteract(); });
+document.getElementById('act').addEventListener('click',doInteract);
+document.getElementById('act').addEventListener('touchstart',e=>{e.preventDefault(); doInteract();},{passive:false});
+
+// also click on canvas to move? simple
+C.addEventListener('click',e=>{
+  if(Dialog.active){ Dialog.hide(); return; }
+  // tap to move towards click
+  const rect=C.getBoundingClientRect();
+  const x = (e.clientX - rect.left)/ rect.width * W / Camera.scale + Camera.x;
+  if(x < Player.x) Keys.left=true, setTimeout(()=>Keys.left=false,280);
+  else Keys.right=true, setTimeout(()=>Keys.right=false,280);
+});
+
+// save
+setInterval(()=>Game.save(),2000);
+
+// start audio on first touch
+addEventListener('pointerdown',()=>Audio.init(),{once:true});
+
+// hook dialog oil
+const oldShow = Dialog.show.bind(Dialog);
+Dialog.show = function(npc){
+  oldShow(npc);
+  // inject oil button in horror doors
+  if(npc.name.includes('МАЯК')||npc.name.includes('ЛАМПА')){
+    const ch=document.getElementById('dChoices');
+    const b=document.createElement('button'); b.textContent='Подлить масла (+25)'; b.onclick=()=>{ Game.oil=Math.min(100,Game.oil+25); updateOil(); Audio.tone(420,0.3,0,0.3); Dialog.hide(); };
+    ch.appendChild(b);
+  }
+};
+
+// auto start hint after 1s
+setTimeout(()=>Audio.init(),800);
+</script>
 </body>
 </html>
